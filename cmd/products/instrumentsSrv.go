@@ -5,9 +5,19 @@ import (
 	"fmt"
 	"os"
 	"seminario-GoLang/internal/config"
+	"seminario-GoLang/internal/service/instruments"
 )
 
 func main() {
+	cfg := readConfig()
+
+	service, _ := instruments.New(cfg)
+	for _, m := range service.FindAll() {
+		fmt.Println(m)
+	}
+}
+
+func readConfig() *config.Config {
 	configFile := flag.String("config", "./config.yaml", "this is how you should config")
 	flag.Parse()
 
@@ -17,4 +27,5 @@ func main() {
 		os.Exit(1)
 	}
 
+	return cfg
 }
