@@ -1,3 +1,5 @@
 db:
+  type: "sqlite3"
   driver: "sqlite3"
+  conn: "./test/data.db"
 version: 0.1.0

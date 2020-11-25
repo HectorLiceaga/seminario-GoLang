@@ -1,13 +1,17 @@
 package instruments
 
-import "seminario-GoLang/internal/config"
+import (
+	"seminario-GoLang/internal/config"
+
+	"github.com/jmoiron/sqlx"
+)
 
 // Instrument ...
 type Instrument struct {
-	ID          int16
-	name        string
-	description string
-	price       int32
+	ID          int64
+	Name        string
+	Description string
+	Price       int32
 }
 
 // InstrumentService ...
@@ -18,12 +22,13 @@ type InstrumentService interface {
 }
 
 type service struct {
+	db   *sqlx.DB
 	conf *config.Config
 }
 
 // New ...
-func New(c *config.Config) (InstrumentService, error) {
-	return service{c}, nil
+func New(db *sqlx.DB, c *config.Config) (InstrumentService, error) {
+	return service{db, c}, nil
 }
 
 func (s service) AddInstrument(i Instrument) error {
@@ -36,6 +41,8 @@ func (s service) FindByID(ID int) *Instrument {
 
 func (s service) FindAll() []*Instrument {
 	var list []*Instrument
-	list = append(list, &Instrument{0, "Bajo", "Bajo eléctrico de 4 cuerdas", 4500})
+	if err := s.db.Select(&list, "SELECT * FROM instruments"); err != nil {
+		panic(err)
+	}
 	return list
 }
