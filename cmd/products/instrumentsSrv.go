@@ -8,6 +8,8 @@ import (
 	"seminario-GoLang/internal/database"
 	"seminario-GoLang/internal/service/instruments"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -15,21 +17,19 @@ func main() {
 	cfg := readConfig()
 
 	db, err := database.NewDataBase(cfg)
+	defer db.Close()
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	if err := createSchema(db); err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-
+	createSchema(db)
 	service, _ := instruments.New(db, cfg)
+	httpService := instruments.NewHTTPTransport(service)
 
-	for _, m := range service.FindAll() {
-		fmt.Println(m)
-	}
+	r := gin.Default()
+	httpService.Register(r)
+	r.Run()
 }
 
 func readConfig() *config.Config {
