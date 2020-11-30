@@ -9,10 +9,10 @@ import (
 
 // Instrument ...
 type Instrument struct {
-	ID          int    `json:"id,omitempty"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Price       int32  `json:"price"`
+	ID          int    `json:"id,omitempty" binding:"required"`
+	Name        string `json:"name" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	Price       int32  `json:"price" binding:"required"`
 }
 
 // Service ...

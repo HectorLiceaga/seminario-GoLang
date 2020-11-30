@@ -86,7 +86,14 @@ func add(s Service) gin.HandlerFunc {
 		if err = json.Unmarshal(body, &i); err != nil {
 			fmt.Println(err)
 		}
-		c.BindJSON(&i)
+		if err = c.ShouldBindJSON(&i); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":  "json decoding : " + err.Error(),
+				"status": http.StatusBadRequest,
+			})
+			return
+		}
+		_ = json.NewDecoder(c.Request.Body).Decode(&i)
 		c.JSON(http.StatusOK, gin.H{
 			"instrument": s.AddInstrument(&i),
 		})
