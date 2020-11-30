@@ -36,6 +36,7 @@ func New(db *sqlx.DB, c *config.Config) (Service, error) {
 
 // AddInstrument ...
 func (s service) AddInstrument(i *Instrument) error {
+	//fmt.Println(i)
 	insertInstrument := `INSERT INTO instruments (name, description, price) VALUES (?,?,?)`
 	s.db.MustExec(insertInstrument, i.Name, i.Description, i.Price)
 	return nil
@@ -70,6 +71,7 @@ func (s service) Delete(ID int) *sql.Result {
 
 // Edit ...
 func (s service) Edit(i *Instrument) *sql.Result {
+	//fmt.Println(i)
 	insertInstrument := `UPDATE instruments SET name=(?), description=(?), price=(?) WHERE id=(?)`
 	result := s.db.MustExec(insertInstrument, i.Name, i.Description, i.Price, i.ID)
 	return &result

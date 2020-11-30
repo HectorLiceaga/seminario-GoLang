@@ -86,7 +86,7 @@ func add(s Service) gin.HandlerFunc {
 		if err = json.Unmarshal(body, &i); err != nil {
 			fmt.Println(err)
 		}
-		//c.BindJSON(&i)
+		c.BindJSON(&i)
 		c.JSON(http.StatusOK, gin.H{
 			"instrument": s.AddInstrument(&i),
 		})
