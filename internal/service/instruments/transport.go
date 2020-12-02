@@ -133,7 +133,7 @@ func edit(s Service) gin.HandlerFunc {
 		err := s.Edit(&i)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error":  "json decoding : " + err.Error(),
+				"error":  err.Error(),
 				"status": http.StatusBadRequest,
 			})
 			return
