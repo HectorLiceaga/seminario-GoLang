@@ -1,9 +1,6 @@
 package instruments
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -124,18 +121,23 @@ func delete(s Service) gin.HandlerFunc {
 
 func edit(s Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		body, err := ioutil.ReadAll(c.Request.Body)
-		if err != nil {
-			fmt.Println(err)
-		}
 		var i Instrument
-		if err = json.Unmarshal(body, &i); err != nil {
-			fmt.Println(err)
+		if err := c.ShouldBindJSON(&i); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":  "json decoding : " + err.Error(),
+				"status": http.StatusBadRequest,
+			})
+			return
 		}
-		//c.BindJSON(&i)
-		c.JSON(http.StatusOK, gin.H{
-			"instrument": s.Edit(&i),
-		})
+
+		err := s.Edit(&i)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":  "json decoding : " + err.Error(),
+				"status": http.StatusBadRequest,
+			})
+			return
+		}
 	}
 }
 
