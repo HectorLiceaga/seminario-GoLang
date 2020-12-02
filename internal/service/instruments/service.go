@@ -18,7 +18,7 @@ type Instrument struct {
 type Service interface {
 	AddInstrument(*Instrument) (int64, error)
 	FindByID(int64) (*Instrument, error)
-	FindAll() []*Instrument
+	FindAll() ([]*Instrument, error)
 	Delete(int64) error
 	Edit(*Instrument) error
 }
@@ -53,12 +53,12 @@ func (s service) FindByID(ID int64) (*Instrument, error) {
 }
 
 // FindAll ...
-func (s service) FindAll() []*Instrument {
+func (s service) FindAll() ([]*Instrument, error) {
 	var list []*Instrument
 	if err := s.db.Select(&list, "SELECT * FROM instruments"); err != nil {
-		panic(err)
+		return nil, err
 	}
-	return list
+	return list, nil
 }
 
 // Delete ...

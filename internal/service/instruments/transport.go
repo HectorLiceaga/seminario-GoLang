@@ -58,8 +58,18 @@ func makeEndpoints(s Service) []*endpoint {
 
 func getAll(s Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		i, err := s.FindAll()
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+
 		c.JSON(http.StatusOK, gin.H{
-			"instruments": s.FindAll(),
+			"instruments": i,
 		})
 	}
 }
