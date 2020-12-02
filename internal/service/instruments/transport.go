@@ -40,19 +40,19 @@ func makeEndpoints(s Service) []*endpoint {
 		function: getAll(s),
 	}, &endpoint{
 		method:   "GET",
-		path:     "/instrument/:id",
+		path:     "/instruments/:id",
 		function: getInstrumentByID(s),
 	}, &endpoint{
 		method:   "POST",
-		path:     "/instrument",
+		path:     "/instruments",
 		function: add(s),
 	}, &endpoint{
 		method:   "DELETE",
-		path:     "/delete/:id",
+		path:     "/instruments/:id",
 		function: delete(s),
 	}, &endpoint{
 		method:   "PUT",
-		path:     "edit/:id",
+		path:     "/instruments/:id",
 		function: edit(s),
 	})
 
@@ -70,32 +70,45 @@ func getAll(s Service) gin.HandlerFunc {
 func getInstrumentByID(s Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ID, _ := strconv.Atoi(c.Param("id"))
+		i, err := s.FindByID(int64(ID))
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err,
+			})
+			return
+		}
+
 		c.JSON(http.StatusOK, gin.H{
-			"instrument": s.FindByID(ID),
+			"instrument": i,
 		})
 	}
 }
 
 func add(s Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		body, err := ioutil.ReadAll(c.Request.Body)
-		if err != nil {
-			fmt.Println(err)
-		}
 		var i Instrument
-		if err = json.Unmarshal(body, &i); err != nil {
-			fmt.Println(err)
-		}
-		if err = c.ShouldBindJSON(&i); err != nil {
+		if err := c.ShouldBindJSON(&i); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error":  "json decoding : " + err.Error(),
 				"status": http.StatusBadRequest,
 			})
 			return
 		}
-		_ = json.NewDecoder(c.Request.Body).Decode(&i)
-		c.JSON(http.StatusOK, gin.H{
-			"instrument": s.AddInstrument(&i),
+
+		ID, err := s.AddInstrument(&i)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":  "json decoding : " + err.Error(),
+				"status": http.StatusBadRequest,
+			})
+			return
+		}
+
+		instrument, _ := s.FindByID(ID)
+
+		c.JSON(201, gin.H{
+			"instrument": instrument,
 		})
 	}
 }
@@ -104,7 +117,7 @@ func delete(s Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ID, _ := strconv.Atoi(c.Param("id"))
 		c.JSON(http.StatusOK, gin.H{
-			"instrument": s.Delete(ID),
+			"instrument": s.Delete(int64(ID)),
 		})
 	}
 }

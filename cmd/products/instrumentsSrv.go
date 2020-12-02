@@ -18,6 +18,7 @@ func main() {
 
 	db, err := database.NewDataBase(cfg)
 	defer db.Close()
+
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
